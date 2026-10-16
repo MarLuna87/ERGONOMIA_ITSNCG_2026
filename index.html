@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Calificaciones - Unidad 2 - ITSNCG</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #7b1113; /* Guinda TecNM */
+            --secondary-color: #b38e5d; /* Dorado */
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-bottom: 4px solid var(--secondary-color);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        header p {
+            margin: 0.5rem 0 0;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            flex: 1;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .search-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            border-top: 4px solid var(--primary-color);
+        }
+
+        .search-card h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(123, 17, 19, 0.1);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #5c0c0e;
+        }
+
+        .error-message {
+            background-color: #fde8e8;
+            color: #9b1c1c;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            text-align: center;
+            border: 1px solid #f8b4b4;
+            display: none;
+        }
+
+        .result-container {
+            display: none;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .student-header {
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .student-header h3 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 1.3rem;
+        }
+
+        .student-header p {
+            margin: 0.3rem 0 0;
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        h4 {
+            color: var(--primary-color);
+            border-left: 4px solid var(--secondary-color);
+            padding-left: 0.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 0.65rem 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #444;
+            font-weight: 600;
+        }
+
+        .grade-badge {
+            font-weight: bold;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .grade-high { background-color: #def7ec; color: #03543f; }
+        .grade-mid { background-color: #fef08a; color: #713f12; }
+        .grade-low { background-color: #fde8e8; color: #9b1c1c; }
+
+        .summary-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .print-btn {
+            background-color: var(--secondary-color);
+            margin-top: 1rem;
+        }
+        .print-btn:hover {
+            background-color: #9a784d;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            background-color: #ffffff;
+            color: #666;
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Instituto Tecnológico Superior de Nuevo Casas Grandes</h1>
+        <p>Sistema de Consulta de Calificaciones - Unidad 2</p>
+    </header>
+
+    <div class="container">
+        <div class="search-card">
+            <h2>Consulta Personal de Alumno</h2>
+            <form id="searchForm" onsubmit="buscarAlumno(event)">
+                <div class="form-group">
+                    <label for="query">Ingresa tu Número de Control o Nombre Completo:</label>
+                    <input type="text" id="query" placeholder="Ej. 24CG0263 o MARIANA" required autocomplete="off">
+                </div>
+                <button type="submit">Consultar Calificaciones</button>
+            </form>
+            <div id="errorMsg" class="error-message">
+                No se encontró ningún alumno con ese número de control o nombre. Verifica tus datos e intenta nuevamente.
+            </div>
+        </div>
+
+        <div id="resultContainer" class="result-container">
+            <div class="student-header">
+                <h3 id="resNombre"></h3>
+                <p>Número de Control: <strong id="resControl"></strong></p>
+            </div>
+
+            <h4>Desglose de Rubros - Unidad 2</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rubro / Criterio</th>
+                        <th>Calificación / Valor</th>
+                    </tr>
+                </thead>
+                <tbody id="tableU2">
+                    <!-- Dinámico -->
+                </tbody>
+            </table>
+
+            <div class="summary-box">
+                <div>
+                    <strong>Faltas acumuladas:</strong> <span id="resFaltas"></span>
+                </div>
+                <div>
+                    <strong>Calificación Final Unidad 2:</strong> <span id="resU2" class="grade-badge"></span>
+                </div>
+            </div>
+
+            <button class="print-btn" onclick="window.print()">Imprimir / Guardar como PDF</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>ITSNCG - Ingeniería Industrial | Panel de Estudiantes</p>
+    </footer>
+
+    <script>
+        // Base de datos exacta obtenida del documento UNIDAD 2 CALIF.xlsx
+        const database = [
+            { control: "23CG0223", nombre: "ALVAREZ VALDÉZ KEVIN ALEXIS", p1: 85, p2: 100, p3: 100, p4: 100, practicas: 96, trabajos: 75, asistencia: 100, final: 92, faltas: "" },
+            { control: "24CG0054", nombre: "MANRÍQUEZ PEDROZA ELIZABETH", p1: 85, p2: 100, p3: 100, p4: 100, practicas: 96, trabajos: 100, asistencia: 100, final: 97, faltas: "" },
+            { control: "24CG0057", nombre: "MENDOZA ORTEGA RAYMUNDO ELIEL", p1: 85, p2: 100, p3: 100, p4: 100, practicas: 96, trabajos: 100, asistencia: 100, final: 97, faltas: "" },
+            { control: "24CG0059", nombre: "QUINTANA BECERRA DAPHNE", p1: 85, p2: 100, p3: 100, p4: 100, practicas: 96, trabajos: 100, asistencia: 100, final: 97, faltas: "" },
+            { control: "24CG0060", nombre: "MERINO VENZOR NATALIA", p1: 85, p2: 85, p3: 100, p4: 100, practicas: 93, trabajos: 100, asistencia: 100, final: 95, faltas: "" },
+            { control: "24CG0061", nombre: "MARTINEZ APODACA DIEGO", p1: 85, p2: 100, p3: 100, p4: 100, practicas: 96, trabajos: 75, asistencia: 100, final: 92, faltas: "" },
+            { control: "24CG0074", nombre: "CURIEL TAPIA ALLISON", p1: 100, p2: 100, p3: 100, p4: 100, practicas: 100, trabajos: 100, asistencia: 100, final: 100, faltas: "" },
+            { control: "24CG0077", nombre: "RIVAS MAR FERNANDA YARELY", p1: 85, p2: 85, p3: 100, p4: 100, practicas: 93, trabajos: 100, asistencia: 100, final: 95, faltas: "" },
+            { control: "24CG0122", nombre: "LOPEZ RAMOS BIANCA JAQUELINE", p1: 100, p2: 100, p3: 100, p4: 100, practicas: 100, trabajos: 100, asistencia: 100, final: 100, faltas: "" },
+            { control: "24CG0127", nombre: "PAYAN GONZALEZ VICTOR", p1: 85, p2: 100, p3: 100, p4: 100, practicas: 96, trabajos: 50, asistencia: 100, final: 87, faltas: "" },
+            { control: "24CG0132", nombre: "SOLIS ORTIZ FERNANDA", p1: 100, p2: 100, p3: 100, p4: 100, practicas: 100, trabajos: 100, asistencia: 100, final: 100, faltas: 0 },
+            { control: "24CG0143", nombre: "ZAMORA SALINAS MARIA MIRANDA", p1: 0, p2: 77.5, p3: 58.5, p4: 0, practicas: 34, trabajos: 50, asistencia: 60, final: 40, faltas: 4 },
+            { control: "24CG0190", nombre: "MEJIA CASTILLO YERALDINNE", p1: 0, p2: 77.5, p3: 58.5, p4: 0, practicas: 34, trabajos: 75, asistencia: 90, final: 48, faltas: 1 },
+            { control: "24CG0237", nombre: "CAMPUZANO RODRÍGUEZ JOCELIN YAZMIN", p1: 0, p2: 77.5, p3: 58.5, p4: 0, practicas: 34, trabajos: 50, asistencia: 50, final: 39, faltas: 5 },
+            { control: "24CG0253", nombre: "ONTIVEROS MACIAS LEONEL ISAAC", p1: 85, p2: 100, p3: 100, p4: 100, practicas: 96, trabajos: 100, asistencia: 100, final: 97, faltas: "" },
+            { control: "24CG0263", nombre: "CABALLERO HERNÁNDEZ MARIANA", p1: 100, p2: 100, p3: 100, p4: 100, practicas: 100, trabajos: 100, asistencia: 90, final: 99, faltas: 1 },
+            { control: "24CG0268", nombre: "CASTILLO VILLELA VICTOR EDUARDO", p1: 85, p2: 100, p3: 100, p4: 100, practicas: 96, trabajos: 75, asistencia: 100, final: 92, faltas: "" },
+            { control: "24CG0305", nombre: "MANDUJANO CAMPOS YAIZA JAZMIN", p1: 100, p2: 100, p3: 100, p4: 100, practicas: 100, trabajos: 100, asistencia: 100, final: 100, faltas: "" },
+            { control: "24CG0309", nombre: "SALINAS BAUTISTA MARCO ANTONIO", p1: 100, p2: 100, p3: 100, p4: 100, practicas: 100, trabajos: 100, asistencia: 90, final: 99, faltas: 1 },
+            { control: "24CG0350", nombre: "MURRIETA MORENO KARELY", p1: 100, p2: 100, p3: 100, p4: 100, practicas: 100, trabajos: 100, asistencia: 100, final: 100, faltas: "" },
+            { control: "24CG0386", nombre: "MELENDEZ VALERIO ANDREA", p1: 85, p2: 85, p3: 100, p4: 100, practicas: 93, trabajos: 100, asistencia: 100, final: 95, faltas: "" },
+            { control: "24CG0398", nombre: "GARCIA LOZOYA CHRISTIAN JARED", p1: 100, p2: 100, p3: 100, p4: 100, practicas: 100, trabajos: 75, asistencia: 100, final: 95, faltas: "" },
+            { control: "24CG0408", nombre: "MARTINEZ ZAMORA NEREIDA", p1: 85, p2: 100, p3: 100, p4: 100, practicas: 96, trabajos: 100, asistencia: 100, final: 97, faltas: "" },
+            { control: "24CG0424", nombre: "MORALES VILLANUEVA DIEGO", p1: 85, p2: 100, p3: 100, p4: 100, practicas: 96, trabajos: 100, asistencia: 80, final: 95, faltas: 2 }
+        ];
+
+        function normalizarTexto(texto) {
+            return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+        }
+
+        function getBadgeClass(score) {
+            if (score >= 70) return 'grade-high';
+            if (score >= 60) return 'grade-mid';
+            return 'grade-low';
+        }
+
+        function buscarAlumno(event) {
+            event.preventDefault();
+            const queryInput = normalizarTexto(document.getElementById('query').value);
+            const errorMsg = document.getElementById('errorMsg');
+            const resultContainer = document.getElementById('resultContainer');
+
+            const alumno = database.find(item => 
+                normalizarTexto(item.control) === queryInput || 
+                normalizarTexto(item.nombre).includes(queryInput)
+            );
+
+            if (!alumno) {
+                errorMsg.style.display = 'block';
+                resultContainer.style.display = 'none';
+                return;
+            }
+
+            errorMsg.style.display = 'none';
+            resultContainer.style.display = 'block';
+
+            // Rellenar datos generales
+            document.getElementById('resNombre').innerText = alumno.nombre;
+            document.getElementById('resControl').innerText = alumno.control;
+
+            // Rellenar Unidad 2
+            const tbodyU2 = document.getElementById('tableU2');
+            tbodyU2.innerHTML = `
+                <tr><td>Práctica 1 - Iluminación</td><td>${alumno.p1}</td></tr>
+                <tr><td>Práctica 2 - Ruido</td><td>${alumno.p2}</td></tr>
+                <tr><td>Práctica 3 - Temperatura</td><td>${alumno.p3}</td></tr>
+                <tr><td>Práctica 4 - NOM-035</td><td>${alumno.p4}</td></tr>
+                <tr><td><strong>Calif. Prácticas (70%)</strong></td><td><strong>${alumno.practicas}</strong></td></tr>
+                <tr><td><strong>Calif. Trabajos (20%)</strong></td><td><strong>${alumno.trabajos}</strong></td></tr>
+                <tr><td><strong>Calif. Asistencia (10%)</strong></td><td><strong>${alumno.asistencia}</strong></td></tr>
+            `;
+
+            document.getElementById('resFaltas').innerText = alumno.faltas !== "" ? alumno.faltas : "0";
+            
+            const badgeU2 = document.getElementById('resU2');
+            badgeU2.innerText = alumno.final;
+            badgeU2.className = `grade-badge ${getBadgeClass(alumno.final)}`;
+
+            // Desplazar vista hacia los resultados
+            resultContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
